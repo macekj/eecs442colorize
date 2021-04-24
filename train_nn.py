@@ -3,8 +3,12 @@ from tqdm import tqdm
 import numpy as np
 import torch.nn as nn
 
+
 # Use GPU to train
 device = torch.device('cuda:0')
+
+max_pixel_val = torch.tensor(127)  # AB channels have expected max value of 127
+max_pixel_val = max_pixel_val.to(device)
 
 # Hyperparameters
 learning_rate = 1e-3
@@ -13,14 +17,12 @@ num_epoch = 20
 
 
 # model = Network().to(device)
-criterion = nn.CrossEntropyLoss()
+criterion = nn.CrossEntropyLoss()  # TODO: Replace with Zhang loss function
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
 
 
 def train(model, train_loader, val_loader, num_epoch):
     trn_loss_hist = []
-    trn_acc_hist = []
-    val_acc_hist = []
     model.train()
     print('Beginning training')
     for i in range(num_epoch):
@@ -36,27 +38,28 @@ def train(model, train_loader, val_loader, num_epoch):
             optimizer.step()
         print("\n Epoch {} loss:{}".format(i+1, np.mean(running_loss)))
         trn_loss_hist.append(np.mean(running_loss))
-        trn_acc_hist.append(evaluate(model, train_loader))
-        print("\n Evaluate on validation set...")
-        val_acc_hist.append(evaluate(model, val_loader))
     print('Done training')
-    return trn_loss_hist, trn_acc_hist, val_acc_hist
+    return trn_loss_hist
 
 
-def evaluate(model, loader):
+# Expects a batch size of 1 for the test data
+def evaluate_model(model, loader):
     model.eval()
-    accuracies = []
+    psnr_vals = []
     with torch.no_grad():
-        for img_batch, true_img in tqdm(loader):
-            img_batch = img_batch.to(device)
+        for pred_img, true_img in tqdm(loader):
+            pred_img = pred_img.to(device)
             true_img = true_img.to(device)
-            output = model(img_batch)
+            output = model(pred_img)
             psnr = calc_psnr(output, true_img)
-            accuracies.append(psnr)
-        avg_score = np.mean(accuracies)
-        print("\n Evaluation accuracy: {}".format(avg_score))
-        return avg_score
+            psnr_vals.append(psnr)
+        avg_psnr = np.mean(psnr_vals)
+        print("\n Avg PSNR: {}".format(avg_psnr))
+        return avg_psnr
 
 
 def calc_psnr(pred_img, real_img):
-    return 0
+    # Calculate MSE
+    sq_diff = torch.square(real_img - pred_img)
+    mse = (1 / (real_img.shape[0] * real_img.shape[1] * real_img.shape[2])) * torch.sum(sq_diff)
+    return 20 * torch.log10(max_pixel_val) - 10 * torch.log10(mse)
