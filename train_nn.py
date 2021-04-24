@@ -8,7 +8,7 @@ import torch.nn as nn
 device = torch.device('cuda:0')
 
 max_pixel_val = torch.tensor(127)  # AB channels have expected max value of 127
-max_pixel_val = max_pixel_val.to(device)
+
 
 # Hyperparameters
 learning_rate = 1e-3
@@ -22,8 +22,9 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=
 
 
 def train(model, train_loader, val_loader, num_epoch):
-    trn_loss_hist = []
     model.train()
+    trn_loss_hist = []
+    val_loss_hist = []
     print('Beginning training')
     for i in range(num_epoch):
         running_loss = []
@@ -38,8 +39,24 @@ def train(model, train_loader, val_loader, num_epoch):
             optimizer.step()
         print("\n Epoch {} loss:{}".format(i+1, np.mean(running_loss)))
         trn_loss_hist.append(np.mean(running_loss))
+        val_loss = test(model, val_loader)
+        print("\n Val Loss:{}".format(val_loss))
+        val_loss_hist.append(val_loss)
     print('Done training')
-    return trn_loss_hist
+    return trn_loss_hist, val_loss_hist
+
+
+def test(model, test_loader):
+    model.eval()
+    running_loss = []
+    with torch.no_grad():
+        for img_batch, true_img in tqdm(test_loader):
+            img_batch = img_batch.to(device)
+            true_img = true_img.to(device)
+            output = model(img_batch)
+            loss = criterion(output, true_img)
+            running_loss.append(loss.item())
+    return np.mean(running_loss)
 
 
 # Expects a batch size of 1 for the test data
