@@ -34,6 +34,7 @@ class ColorizeDataset(Dataset):
       # Normalize input image
       img = Image.open(os.path.join(dataDir,flag,img_filename))
       img = np.asarray(img).astype("f")/128.0-1.0
+      img = np.expand_dims(img, axis=0)
 
       # Normalize expected image and convert to LAB
       exp = Image.open(os.path.join(dataDir,flag,exp_filename))
@@ -55,21 +56,21 @@ class ColorizeDataset(Dataset):
     img, label = self.dataset[index]
     return torch.FloatTensor(img), torch.FloatTensor(label)
 
-train_range = (0, 8000)
-val_range = (8000, 10000)
-test_range = (1, 2000)
+# train_range = (0, 8000)
+# val_range = (8000, 10000)
+# test_range = (1, 2000)
 
-def get_train_dataloader():
-  train_data = ColorizeDataset(flag='train', data_range=train_range)
-  train_loader = DataLoader(train_data, batch_size=4)
-  return (train_data, train_loader)
+train_range = (0, 800)
+val_range = (800, 1000)
+test_range = (1, 200)
 
-def get_val_dataloader():
-  val_data = ColorizeDataset(flag='train', data_range=val_range)
-  val_loader = DataLoader(val_data, batch_size=4)
-  return (val_data, val_loader)
 
-def get_test_dataloader():
-  test_data = ColorizeDataset(flag='test', data_range=test_range)
-  test_loader = DataLoader(test_data, batch_size=1)
-  return (test_data, test_loader)
+train_data = ColorizeDataset(flag='train', data_range=train_range)
+train_loader = DataLoader(train_data, batch_size=4)
+
+val_data = ColorizeDataset(flag='train', data_range=val_range)
+val_loader = DataLoader(val_data, batch_size=4)
+
+test_data = ColorizeDataset(flag='test', data_range=test_range)
+test_loader = DataLoader(test_data, batch_size=1)
+

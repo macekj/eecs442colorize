@@ -2,10 +2,14 @@ import torch
 from tqdm import tqdm
 import numpy as np
 import torch.nn as nn
-
+from torchsummary import summary
+from cnn import ColorNet
+from dataset import *
 
 # Use GPU to train
 device = torch.device('cuda:0')
+# Uncomment to use CPU instead
+#device = torch.device('cpu')
 
 max_pixel_val = torch.tensor(127)  # AB channels have expected max value of 127
 
@@ -15,9 +19,14 @@ learning_rate = 1e-3
 weight_decay = 1e-4
 num_epoch = 20
 
+name = 'colorization_net'
+model = ColorNet().to(device)
+# visualizing the model
+print('Your network:')
+summary(model, (1,128,128))
 
-# model = Network().to(device)
-criterion = nn.CrossEntropyLoss()  # TODO: Replace with Zhang loss function
+## nn.CrossEntropyLoss() was giving an error, using MSE for now
+criterion = nn.MSELoss()  # TODO: Replace with Zhang loss function
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
 
 
@@ -33,6 +42,11 @@ def train(model, train_loader, val_loader, num_epoch):
             true_img = true_img.to(device)
             optimizer.zero_grad()
             output = model(img_batch)
+            # output shape is [x, 2, 128, 128]
+            # true_img shape is [x, 128, 128, 3]
+            # add back L channel and move axes
+            output = torch.moveaxis(output, 1, -1)
+            output = torch.cat([output, true_img[:,:,:,0:1]], 3)
             loss = criterion(output, true_img)
             running_loss.append(loss.item())
             loss.backward()
@@ -80,3 +94,5 @@ def calc_psnr(pred_img, real_img):
     sq_diff = torch.square(real_img - pred_img)
     mse = (1 / (real_img.shape[0] * real_img.shape[1] * real_img.shape[2])) * torch.sum(sq_diff)
     return 20 * torch.log10(max_pixel_val) - 10 * torch.log10(mse)
+
+train(model, train_loader, val_loader, num_epoch)
