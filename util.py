@@ -125,25 +125,26 @@ def unnormalize_ab(img):
 #   return None
 
 
-# def get_result(testloader, net, device, folder='output_train'):
-#   result = []
-#   cnt = 1
-#   os.makedirs(folder, exist_ok=True)
-#   with torch.no_grad():
-#     net = net.eval()
-#     cnt = 0
-#     for images, labels in tqdm(testloader):
-#       images = images.to(device)
-#       labels = labels.to(device)
-#       output = net(images)[0].cpu().numpy()
-#       c, h, w = output.shape
-#       y = np.argmax(output, 0).astype('uint8')
-#       gt = labels.cpu().data.numpy().squeeze(0).astype('uint8')
-#     #   save_label(y, './{}/y{}.png'.format(folder, cnt))
-#     #   save_label(gt, './{}/gt{}.png'.format(folder, cnt))
-#       plt.imsave('./{}/x{}.png'.format(folder, cnt),
-#                  ((images[0].cpu().data.numpy()+1)*128).astype(np.uint8).transpose(1,2,0))
-#       cnt += 1
+def get_result(testloader, net, device, folder='output_train'):
+  result = []
+  cnt = 1
+  os.makedirs(folder, exist_ok=True)
+  with torch.no_grad():
+    net = net.eval()
+    cnt = 0
+    for images, labels in tqdm(testloader):
+      images = images.to(device)
+      labels = labels.to(device)
+      output = net(images)[0].cpu().numpy()
+      c, h, w = output.shape
+      # y = np.argmax(output, 0).astype('uint8')
+      # gt = labels.cpu().data.numpy().squeeze(0).astype('uint8')
+      # save_label(y, './{}/y{}.png'.format(folder, cnt))
+      # save_label(gt, './{}/gt{}.png'.format(folder, cnt))
+      # plt.imsave('./{}/x{}.png'.format(folder, cnt),
+      #            ((images[0].cpu().data.numpy()+1)*128).astype(np.uint8).transpose(1,2,0))
+      plt.imsave('./{}/x{}.png'.format(folder, cnt), color.lab2rgb(output))
+      cnt += 1
 
 # def plot_hist(trn_hist, val_hist):
 #     x = np.arange(len(trn_hist))

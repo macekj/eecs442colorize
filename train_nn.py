@@ -5,6 +5,7 @@ import torch.nn as nn
 from torchsummary import summary
 from cnn import ColorNet
 from dataset import *
+from util import *
 
 # Use GPU to train
 device = torch.device('cuda:0')
@@ -17,7 +18,7 @@ max_pixel_val = torch.tensor(127)  # AB channels have expected max value of 127
 # Hyperparameters
 learning_rate = 1e-3
 weight_decay = 1e-4
-num_epoch = 20
+num_epoch = 2
 
 name = 'colorization_net'
 model = ColorNet().to(device)
@@ -90,3 +91,5 @@ def calc_psnr(pred_img, real_img):
     return 20 * torch.log10(max_pixel_val) - 10 * torch.log10(mse)
 
 train(model, train_loader, val_loader, num_epoch)
+
+get_result(test_loader, model, device, folder='output_test')

@@ -96,7 +96,7 @@ class ColorNet(nn.Module):
 
     # normalize luminances as they go into forward pass
     out = normalize_l(x)
-    out = self.conv1(x)
+    out = self.conv1(out)
     out = self.conv2(out)
     out = self.conv3(out)
     out = self.conv4(out)
@@ -108,7 +108,7 @@ class ColorNet(nn.Module):
     out = self.model_out(out)
     out = self.upsample(out)
     # unnormalize the AB layers as they come out
-    out = self.unnormalize_ab(out)
+    out = unnormalize_ab(out)
     
     # at this point, out.shape is [N, 2, 128, 128]
     # and contains the AB layers
