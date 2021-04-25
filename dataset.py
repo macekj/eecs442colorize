@@ -31,20 +31,24 @@ class ColorizeDataset(Dataset):
       img_filename = 'gry_%05d.jpg' % i
       exp_filename = 'clr_%05d.jpg' % i
 
+      # Originally, I was just using the B&W images I generated from the training set.
+      # Looks like PIL uses a different LAB calculation than skimage, so simply
+      # re-pull the L layer as the input rather than use the one on disk
       # Normalize input image
-      img = Image.open(os.path.join(dataDir,flag,img_filename))
-      img = np.asarray(img).astype("f")/128.0-1.0
-      img = np.expand_dims(img, axis=0)
+      # img = Image.open(os.path.join(dataDir,flag,img_filename))
+      # img = np.asarray(img).astype("f") / 255.0
+      # img = np.expand_dims(img, axis=0)
 
       # Normalize expected image and convert to LAB
       exp = Image.open(os.path.join(dataDir,flag,exp_filename))
-      exp = np.asarray(exp).astype("f") # TODO: normalize?
+      exp = np.asarray(exp).astype("f") / 255.0 # TODO: normalize?
 
       # Skip images with an expected B&W output
       if exp.ndim != 3 or exp.shape[2] != 3:
         continue
 
       exp_lab = color.rgb2lab(exp)
+      img = np.expand_dims(exp_lab[:, :, 0], axis=0)
 
       self.dataset.append((img, exp_lab))
     print("load dataset done")
