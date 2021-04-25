@@ -60,9 +60,9 @@ class ColorizeDataset(Dataset):
 # val_range = (8000, 10000)
 # test_range = (1, 2000)
 
-train_range = (0, 800)
-val_range = (800, 1000)
-test_range = (1, 200)
+train_range = (0, 4)
+val_range = (4, 5)
+test_range = (1, 20)
 
 
 train_data = ColorizeDataset(flag='train', data_range=train_range)

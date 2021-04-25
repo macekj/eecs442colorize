@@ -2,6 +2,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from util import *
 
 class ColorNet(nn.Module):
   def __init__(self):
@@ -90,18 +91,32 @@ class ColorNet(nn.Module):
 
 
   def forward(self, x):
+    # x.shape is [N, 1, 128, 128]
+    # and contains the L layer
 
-    x = self.conv1(x)
-    x = self.conv2(x)
-    x = self.conv3(x)
-    x = self.conv4(x)
-    x = self.conv5(x)
-    x = self.conv6(x)
-    x = self.conv7(x)
-    x = self.conv8(x)
-    x = self.softmax(x)
-    x = self.model_out(x)
-    x = self.upsample(x)
+    # normalize luminances as they go into forward pass
+    out = normalize_l(x)
+    out = self.conv1(x)
+    out = self.conv2(out)
+    out = self.conv3(out)
+    out = self.conv4(out)
+    out = self.conv5(out)
+    out = self.conv6(out)
+    out = self.conv7(out)
+    out = self.conv8(out)
+    out = self.softmax(out)
+    out = self.model_out(out)
+    out = self.upsample(out)
+    # unnormalize the AB layers as they come out
+    out = self.unnormalize_ab(out)
+    
+    # at this point, out.shape is [N, 2, 128, 128]
+    # and contains the AB layers
 
-    return x
+    # true_img shape is [x, 128, 128, 3]
+    # so, we need to add back L channel and move axes
+    out = torch.cat([out, x], 1)
+    out = torch.moveaxis(out, 1, -1)
+
+    return out
 

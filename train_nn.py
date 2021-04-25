@@ -29,7 +29,6 @@ summary(model, (1,128,128))
 criterion = nn.MSELoss()  # TODO: Replace with Zhang loss function
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
 
-
 def train(model, train_loader, val_loader, num_epoch):
     model.train()
     trn_loss_hist = []
@@ -42,11 +41,6 @@ def train(model, train_loader, val_loader, num_epoch):
             true_img = true_img.to(device)
             optimizer.zero_grad()
             output = model(img_batch)
-            # output shape is [x, 2, 128, 128]
-            # true_img shape is [x, 128, 128, 3]
-            # add back L channel and move axes
-            output = torch.moveaxis(output, 1, -1)
-            output = torch.cat([output, true_img[:,:,:,0:1]], 3)
             loss = criterion(output, true_img)
             running_loss.append(loss.item())
             loss.backward()

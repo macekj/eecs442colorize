@@ -18,6 +18,19 @@ from torchvision import datasets, models, transforms
 from torch.utils.data.dataset import Dataset
 from tqdm import tqdm
 
+def normalize_l(img):
+    return (img - 50.0)/100.0
+
+def unnormalize_l(img):
+    return (img*100.0) + 50.0
+
+def normalize_ab(img):
+    return img / 110.0
+
+def unnormalize_ab(img):
+    return img * 110.0
+
+
 # As of now, all functions pasted below here are just from HW5 starter code for convenience
 
 # def save_label(label, path):
