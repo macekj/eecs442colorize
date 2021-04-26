@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.optim as optim
 from util import *
 
-class ColorNet(nn.Module):
+class ColorNet(BaseColor):
   def __init__(self):
     super(ColorNet, self).__init__()
 
@@ -95,7 +95,7 @@ class ColorNet(nn.Module):
     # and contains the L layer
 
     # normalize luminances as they go into forward pass
-    out = normalize_l(x)
+    out = self.normalize_l(x)
     out = self.conv1(out)
     out = self.conv2(out)
     out = self.conv3(out)
@@ -108,7 +108,7 @@ class ColorNet(nn.Module):
     out = self.model_out(out)
     out = self.upsample(out)
     # unnormalize the AB layers as they come out
-    out = unnormalize_ab(out)
+    out = self.unnormalize_ab(out)
     
     # at this point, out.shape is [N, 2, 128, 128]
     # and contains the AB layers

@@ -16,8 +16,8 @@ max_pixel_val = torch.tensor(127)  # AB channels have expected max value of 127
 
 
 # Hyperparameters
-learning_rate = 3e-2
-weight_decay = 1e-7
+learning_rate = 1e-2
+weight_decay = 1e-9
 num_epoch = 20
 
 name = 'colorization_net'
