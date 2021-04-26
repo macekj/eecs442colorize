@@ -64,16 +64,16 @@ class ColorizeDataset(Dataset):
 # val_range = (8000, 10000)
 # test_range = (1, 2000)
 
-train_range = (0, 4)
-val_range = (4, 5)
+train_range = (0, 80)
+val_range = (80, 100)
 test_range = (1, 20)
 
 
 train_data = ColorizeDataset(flag='train', data_range=train_range)
-train_loader = DataLoader(train_data, batch_size=4)
+train_loader = DataLoader(train_data, batch_size=8)
 
 val_data = ColorizeDataset(flag='train', data_range=val_range)
-val_loader = DataLoader(val_data, batch_size=4)
+val_loader = DataLoader(val_data, batch_size=8)
 
 test_data = ColorizeDataset(flag='test', data_range=test_range)
 test_loader = DataLoader(test_data, batch_size=1)

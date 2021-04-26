@@ -16,9 +16,9 @@ max_pixel_val = torch.tensor(127)  # AB channels have expected max value of 127
 
 
 # Hyperparameters
-learning_rate = 1e-3
+learning_rate = 5e-3
 weight_decay = 1e-4
-num_epoch = 2
+num_epoch = 20
 
 name = 'colorization_net'
 model = ColorNet().to(device)
@@ -55,11 +55,11 @@ def train(model, train_loader, val_loader, num_epoch):
     return trn_loss_hist, val_loss_hist
 
 
-def test(model, test_loader):
+def test(model, loader):
     model.eval()
     running_loss = []
     with torch.no_grad():
-        for img_batch, true_img in tqdm(test_loader):
+        for img_batch, true_img in tqdm(loader):
             img_batch = img_batch.to(device)
             true_img = true_img.to(device)
             output = model(img_batch)
