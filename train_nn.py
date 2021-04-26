@@ -17,8 +17,8 @@ max_pixel_val = torch.tensor(127)  # AB channels have expected max value of 127
 
 # Hyperparameters
 learning_rate = 5e-3
-weight_decay = 1e-4
-num_epoch = 20
+weight_decay = 1e-5
+num_epoch = 10
 
 name = 'colorization_net'
 model = ColorNet().to(device)
@@ -31,11 +31,11 @@ criterion = nn.MSELoss()  # TODO: Replace with Zhang loss function
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
 
 def train(model, train_loader, val_loader, num_epoch):
-    model.train()
     trn_loss_hist = []
     val_loss_hist = []
     print('Beginning training')
     for i in range(num_epoch):
+        model.train()
         running_loss = []
         for img_batch, true_img in tqdm(train_loader):
             img_batch = img_batch.to(device)
@@ -91,5 +91,5 @@ def calc_psnr(pred_img, real_img):
     return 20 * torch.log10(max_pixel_val) - 10 * torch.log10(mse)
 
 train(model, train_loader, val_loader, num_epoch)
-
+torch.save(model.state_dict(), "my_model_state")
 get_result(test_loader, model, device, folder='output_test')

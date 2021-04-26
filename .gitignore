@@ -2,4 +2,6 @@ colorize_dataset/
 
 __pycache__/
 
-output_test/
+output_test*/
+
+my_model_state
