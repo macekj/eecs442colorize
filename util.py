@@ -143,7 +143,11 @@ def get_result(testloader, net, device, folder='output_train'):
       # save_label(gt, './{}/gt{}.png'.format(folder, cnt))
       # plt.imsave('./{}/x{}.png'.format(folder, cnt),
       #            ((images[0].cpu().data.numpy()+1)*128).astype(np.uint8).transpose(1,2,0))
-      plt.imsave('./{}/x{}.png'.format(folder, cnt), color.lab2rgb(output))
+      lab = color.lab2rgb(output)
+      plt.imsave('./{}/x{}.png'.format(folder, cnt), lab)
+      plt.imsave('./{}/l{}.png'.format(folder, cnt), lab[:, :, 0])
+      plt.imsave('./{}/a{}.png'.format(folder, cnt), lab[:, :, 1])
+      plt.imsave('./{}/b{}.png'.format(folder, cnt), lab[:, :, 2])
       cnt += 1
 
 # def plot_hist(trn_hist, val_hist):
