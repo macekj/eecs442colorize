@@ -17,6 +17,7 @@ from torch.utils.data import DataLoader
 from torchvision import datasets, models, transforms
 from torch.utils.data.dataset import Dataset
 from tqdm import tqdm
+import pdb
 
 class BaseColor(nn.Module):
     def __init__(self):
@@ -136,10 +137,12 @@ def get_result(testloader, net, device, folder='output_train'):
   with torch.no_grad():
     net = net.eval()
     cnt = 0
-    for images, labels in tqdm(testloader):
-      images = images.to(device)
-      labels = labels.to(device)
-      output = net(images)[0].cpu().numpy()
+    for img, true_ab in tqdm(testloader):
+      img = img.to(device)
+      true_ab = true_ab.to(device)
+      output = net(img)[0].cpu().numpy()
+      output = np.concatenate((img[0].cpu().numpy(), output), 0)
+      output = np.moveaxis(output, 0, -1)
       c, h, w = output.shape
       # y = np.argmax(output, 0).astype('uint8')
       # gt = labels.cpu().data.numpy().squeeze(0).astype('uint8')
@@ -147,11 +150,12 @@ def get_result(testloader, net, device, folder='output_train'):
       # save_label(gt, './{}/gt{}.png'.format(folder, cnt))
       # plt.imsave('./{}/x{}.png'.format(folder, cnt),
       #            ((images[0].cpu().data.numpy()+1)*128).astype(np.uint8).transpose(1,2,0))
-      lab = color.lab2rgb(output)
-      plt.imsave('./{}/x{}.png'.format(folder, cnt), lab)
-      plt.imsave('./{}/l{}.png'.format(folder, cnt), lab[:, :, 0])
-      plt.imsave('./{}/a{}.png'.format(folder, cnt), lab[:, :, 1])
-      plt.imsave('./{}/b{}.png'.format(folder, cnt), lab[:, :, 2])
+      rgb = color.lab2rgb(output)
+      print("Saving images x,l,a,b{}.png".format(cnt))
+      plt.imsave('./{}/x{}.png'.format(folder, cnt), rgb)
+      plt.imsave('./{}/l{}.png'.format(folder, cnt), output[:, :, 0])
+      plt.imsave('./{}/a{}.png'.format(folder, cnt), output[:, :, 1])
+      plt.imsave('./{}/b{}.png'.format(folder, cnt), output[:, :, 2])
       cnt += 1
 
 # def plot_hist(trn_hist, val_hist):
