@@ -22,14 +22,13 @@ from sklearn.cluster import MiniBatchKMeans
 import pdb
 
 class ColorizeDataset(Dataset):
-  def __init__(self, flag, dataDir='./colorize_dataset/', data_range=(0, 8)):
+  def __init__(self, flag, cluster, dataDir='./colorize_dataset/', data_range=(0, 8)):
     assert(flag in ['train', 'test'])
     print("load "+ flag+" dataset start")
     print("    from: %s" % dataDir)
     print("    range: [%d, %d)" % (data_range[0], data_range[1]))
     self.dataset = []
-    self.cluster = MiniBatchKMeans(n_clusters=313)
-    self.fit_cluster()
+    self.cluster = cluster
     for i in range(data_range[0], data_range[1]):
       img_filename = 'gry_%05d.jpg' % i
       exp_filename = 'clr_%05d.jpg' % i
@@ -75,18 +74,18 @@ class ColorizeDataset(Dataset):
     img, exp_ab = self.dataset[index]
     return torch.FloatTensor(img), torch.LongTensor(exp_ab)
 
-  def fit_cluster(self):
-    # Open image corresponding to full color space and normalize
-    color_space = Image.open(os.path.join("color_space.jpg"))
-    color_space = np.asarray(color_space).astype("f")/255.0
+def fit_cluster(cluster):
+  # Open image corresponding to full color space and normalize
+  color_space = Image.open(os.path.join("color_space.jpg"))
+  color_space = np.asarray(color_space).astype("f")/255.0
 
-    # Convert to L*a*b* and remove L channel
-    color_space = cv2.cvtColor(color_space, cv2.COLOR_RGB2LAB)
-    ABchannel = color_space[:,:,1:3]
+  # Convert to L*a*b* and remove L channel
+  color_space = cv2.cvtColor(color_space, cv2.COLOR_RGB2LAB)
+  ABchannel = color_space[:,:,1:3]
 
-    # Transfrom to feature vector and fit k means clustering
-    ABchannel = ABchannel.reshape((color_space.shape[0]*color_space.shape[1], 2))
-    self.cluster.fit(ABchannel)
+  # Transfrom to feature vector and fit k means clustering
+  ABchannel = ABchannel.reshape((color_space.shape[0]*color_space.shape[1], 2))
+  cluster.fit(ABchannel)
 
 # train_range = (0, 8000)
 # val_range = (8000, 10000)
@@ -96,13 +95,16 @@ train_range = (0, 80)
 val_range = (80, 100)
 test_range = (1, 20)
 
+cluster = MiniBatchKMeans(n_clusters=313)
+fit_cluster(cluster)
 
-train_data = ColorizeDataset(flag='train', data_range=train_range)
+
+train_data = ColorizeDataset(flag='train', cluster=cluster, data_range=train_range)
 train_loader = DataLoader(train_data, batch_size=8)
 
-val_data = ColorizeDataset(flag='train', data_range=val_range)
+val_data = ColorizeDataset(flag='train', cluster=cluster, data_range=val_range)
 val_loader = DataLoader(val_data, batch_size=8)
 
-test_data = ColorizeDataset(flag='test', data_range=test_range)
+test_data = ColorizeDataset(flag='test', cluster=cluster, data_range=test_range)
 test_loader = DataLoader(test_data, batch_size=1)
 

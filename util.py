@@ -17,6 +17,7 @@ from torch.utils.data import DataLoader
 from torchvision import datasets, models, transforms
 from torch.utils.data.dataset import Dataset
 from tqdm import tqdm
+from dataset import cluster
 import pdb
 
 class BaseColor(nn.Module):
@@ -141,8 +142,17 @@ def get_result(testloader, net, device, folder='output_train'):
       img = img.to(device)
       true_ab = true_ab.to(device)
       output = net(img)[0].cpu().numpy()
-      output = np.concatenate((img[0].cpu().numpy(), output), 0)
-      output = np.moveaxis(output, 0, -1)
+      c, h, w = output.shape
+      
+      # Convert color probabilities to labels and reshape to vector
+      output = prob_to_color_labels(output, 0.35)
+      output = output.reshape((output.shape[0]*output.shape[1]))
+      output = cluster.cluster_centers_.astype("f")[output]
+      output = output.reshape((h,w,2))
+      Llayer = np.moveaxis(img[0].cpu().numpy(), 0, -1)
+      output = np.concatenate((output, Llayer), 2)
+      #output = np.concatenate((img[0].cpu().numpy(), output), 0)
+      #output = np.moveaxis(output, 0, -1)
       c, h, w = output.shape
       # y = np.argmax(output, 0).astype('uint8')
       # gt = labels.cpu().data.numpy().squeeze(0).astype('uint8')
@@ -157,6 +167,13 @@ def get_result(testloader, net, device, folder='output_train'):
       plt.imsave('./{}/a{}.png'.format(folder, cnt), output[:, :, 1])
       plt.imsave('./{}/b{}.png'.format(folder, cnt), output[:, :, 2])
       cnt += 1
+
+def prob_to_color_labels(Z, temp):
+  Z = np.exp(np.log(Z)/temp)
+  Z = Z / np.sum(Z)
+  Z = np.mean(Z, axis=0).astype("uint8")
+  return Z
+
 
 # def plot_hist(trn_hist, val_hist):
 #     x = np.arange(len(trn_hist))
