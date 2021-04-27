@@ -5,3 +5,8 @@ __pycache__/
 output_test*/
 
 my_model_state
+
+annotations/
+building_dataset/
+buildings.zip
+building_test_out/
