@@ -73,7 +73,7 @@ class ColorizeDataset(Dataset):
 
   def __getitem__(self, index):
     img, exp_ab = self.dataset[index]
-    return torch.FloatTensor(img), torch.FloatTensor(exp_ab)
+    return torch.FloatTensor(img), torch.LongTensor(exp_ab)
 
   def fit_cluster(self):
     # Open image corresponding to full color space and normalize
