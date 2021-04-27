@@ -104,11 +104,11 @@ class ColorNet(BaseColor):
     # out = self.conv6(out)
     # out = self.conv7(out)
     out = self.conv8(out)
-    out = self.softmax(out)
-    out = self.model_out(out)
+    #out = self.softmax(out)
+    #out = self.model_out(out)
     out = self.upsample(out)
     # unnormalize the AB layers as they come out
-    out = self.unnormalize_ab(out)
+    #out = self.unnormalize_ab(out)
     
     # at this point, out.shape is [N, 2, 128, 128]
     # and contains the AB layers
