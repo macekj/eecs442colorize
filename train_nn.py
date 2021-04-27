@@ -27,7 +27,7 @@ print('Your network:')
 summary(model, (1,128,128))
 
 ## nn.CrossEntropyLoss() was giving an error, using MSE for now
-criterion = nn.MSELoss()  # TODO: Replace with Zhang loss function
+criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
 
 def train(model, train_loader, val_loader, num_epoch):
