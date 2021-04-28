@@ -129,10 +129,5 @@ class ColorNet(BaseColor):
     # at this point, out.shape is [N, 2, 128, 128]
     # and contains the AB layers
 
-    # true_img shape is [x, 128, 128, 3]
-    # so, we need to add back L channel and move axes
-    # out = torch.cat([x, out], 1)
-    # out = torch.moveaxis(out, 1, -1)
-
     return out
 

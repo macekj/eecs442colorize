@@ -91,5 +91,5 @@ def calc_psnr(pred_img, real_img):
     return 20 * torch.log10(max_pixel_val) - 10 * torch.log10(mse)
 
 train(model, train_loader, val_loader, num_epoch)
-torch.save(model.state_dict(), "my_model_state")
+torch.save(model.state_dict(), "my_model_state.pth")
 get_result(test_loader, model, device, folder='output_test')

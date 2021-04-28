@@ -36,10 +36,6 @@ class ColorizeDataset(Dataset):
       # Originally, I was just using the B&W images I generated from the training set.
       # Looks like PIL uses a different LAB calculation than skimage, so simply
       # re-pull the L layer as the input rather than use the one on disk
-      # Normalize input image
-      # img = Image.open(os.path.join(dataDir,flag,img_filename))
-      # img = np.asarray(img).astype("f") / 255.0
-      # img = np.expand_dims(img, axis=0)
 
       # Normalize expected image and convert to LAB
       exp = Image.open(os.path.join(dataDir,flag,exp_filename))
@@ -51,11 +47,7 @@ class ColorizeDataset(Dataset):
 
       exp_lab = np.moveaxis(color.rgb2lab(exp), -1, 0)
       img = exp_lab[0:1, :, :]
-
       exp_ab = exp_lab[1:, :, :]
-      
-      #exp_ab = exp_lab[1:, :, :]
-
 
       self.dataset.append((img, exp_ab))
     print("load dataset done")
