@@ -49,22 +49,15 @@ class ColorizeDataset(Dataset):
       if exp.ndim != 3 or exp.shape[2] != 3:
         continue
 
-      # Convert to L*a*b* and remove L channel
-      exp_lab = color.rgb2lab(exp)
-      exp_ab = exp_lab[:,:,1:]
-
-      # Transform to feature vector and get labels in corect shape
-      exp_ab = exp_ab.reshape((exp_ab.shape[0]*exp_ab.shape[1], 2))
-      exp_labels = self.cluster.predict(exp_ab)
-      exp_labels = exp_labels.reshape((exp_lab.shape[0], exp_lab.shape[1]))
-
-      exp_lab = np.moveaxis(exp_lab, -1, 0)
+      exp_lab = np.moveaxis(color.rgb2lab(exp), -1, 0)
       img = exp_lab[0:1, :, :]
+
+      exp_ab = exp_lab[1:, :, :]
       
       #exp_ab = exp_lab[1:, :, :]
 
 
-      self.dataset.append((img, exp_labels))
+      self.dataset.append((img, exp_ab))
     print("load dataset done")
 
   def __len__(self):
@@ -72,7 +65,7 @@ class ColorizeDataset(Dataset):
 
   def __getitem__(self, index):
     img, exp_ab = self.dataset[index]
-    return torch.FloatTensor(img), torch.LongTensor(exp_ab)
+    return torch.FloatTensor(img), torch.FloatTensor(exp_ab)
 
 def fit_cluster(cluster):
   # Open image corresponding to full color space and normalize
@@ -87,12 +80,9 @@ def fit_cluster(cluster):
   ABchannel = ABchannel.reshape((color_space.shape[0]*color_space.shape[1], 2))
   cluster.fit(ABchannel)
 
-# train_range = (0, 8000)
-# val_range = (8000, 10000)
-# test_range = (1, 2000)
 
-train_range = (0, 80)
-val_range = (80, 100)
+train_range = (0, 800)
+val_range = (800, 1000)
 test_range = (1, 20)
 
 cluster = MiniBatchKMeans(n_clusters=313)
@@ -107,4 +97,3 @@ val_loader = DataLoader(val_data, batch_size=8)
 
 test_data = ColorizeDataset(flag='test', cluster=cluster, data_range=test_range)
 test_loader = DataLoader(test_data, batch_size=1)
-

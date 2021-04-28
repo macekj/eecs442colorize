@@ -7,18 +7,18 @@ from cnn import ColorNet
 from dataset import *
 from util import *
 
+
 # Use GPU to train
 device = torch.device('cuda:0')
 # Uncomment to use CPU instead
-#device = torch.device('cpu')
+# device = torch.device('cpu')
 
 max_pixel_val = torch.tensor(127)  # AB channels have expected max value of 127
 
-
 # Hyperparameters
-learning_rate = 1e-3
+learning_rate = 5e-4
 weight_decay = 0
-num_epoch = 20
+num_epoch = 180
 
 name = 'colorization_net'
 model = ColorNet().to(device)
@@ -27,7 +27,7 @@ print('Your network:')
 summary(model, (1,128,128))
 
 ## nn.CrossEntropyLoss() was giving an error, using MSE for now
-criterion = nn.CrossEntropyLoss()
+criterion = nn.MSELoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
 
 def train(model, train_loader, val_loader, num_epoch):
